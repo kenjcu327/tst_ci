@@ -3,23 +3,33 @@ pipeline {
 
     environment {
         BUILD_DIR = "build"
+        REPO_URL = "https://github.com/kenjcu327/tstst.git" // Replace with your repository URL
     }
 
     stages {
+        stage('Checkout') {
+            steps {
+                // Clone the repository
+                git url: "${REPO_URL}", branch: 'master'
+            }
+        }
+        
         stage('Prepare') {
             steps {
-                // Clean workspace and create the build directory
+                // Clean workspace and create build directory
                 deleteDir()
                 sh "mkdir -p ${BUILD_DIR}"
             }
         }
-        
+
         stage('Build with AddressSanitizer') {
             steps {
                 dir(BUILD_DIR) {
                     sh 'cmake .. -DENABLE_ASAN=ON'
                     sh 'make'
                 }
+                // Run the executable to check for issues
+                sh "./MemoryThreadUBProject"
             }
         }
         
@@ -29,6 +39,8 @@ pipeline {
                     sh 'cmake .. -DENABLE_UBSAN=ON'
                     sh 'make'
                 }
+                // Run the executable to check for issues
+                sh "./MemoryThreadUBProject"
             }
         }
         
@@ -38,6 +50,8 @@ pipeline {
                     sh 'cmake .. -DENABLE_TSAN=ON'
                     sh 'make'
                 }
+                // Run the executable to check for issues
+                sh "./MemoryThreadUBProject"
             }
         }
 
@@ -47,6 +61,8 @@ pipeline {
                     sh 'cmake .. -DENABLE_MSAN=ON'
                     sh 'make'
                 }
+                // Run the executable to check for issues
+                sh "./MemoryThreadUBProject"
             }
         }
 
@@ -56,6 +72,8 @@ pipeline {
                     sh 'cmake .. -DENABLE_LSAN=ON'
                     sh 'make'
                 }
+                // Run the executable to check for issues
+                sh "./MemoryThreadUBProject"
             }
         }
     }
